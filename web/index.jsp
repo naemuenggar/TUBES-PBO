@@ -58,6 +58,24 @@
                         box-shadow: var(--shadow-md);
                         filter: brightness(110%);
                     }
+
+                    .btn-profile {
+                        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+                        color: white;
+                        padding: 0.5rem 1rem;
+                        border-radius: var(--radius-md);
+                        text-decoration: none;
+                        font-weight: 600;
+                        font-size: 0.9rem;
+                        transition: all 0.2s;
+                        box-shadow: var(--shadow-sm);
+                    }
+
+                    .btn-profile:hover {
+                        transform: translateY(-2px);
+                        box-shadow: var(--shadow-md);
+                        filter: brightness(110%);
+                    }
                 </style>
             </head>
 
@@ -74,6 +92,7 @@
                                 <%= userRole %>
                             </span>
                         </div>
+                        <a href="ProfileServlet" class="btn-profile">👤 Profile</a>
                         <a href="LogoutServlet" class="btn-logout">Logout</a>
                     </div>
                 </nav>

@@ -38,11 +38,11 @@ public class KategoriServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String id = req.getParameter("id");
         String nama = req.getParameter("nama");
-        String tipe = req.getParameter("tipe");
+        // String tipe = req.getParameter("tipe"); // Removed
 
-        System.out.println("DEBUG KATEGORI: " + id + ", " + nama + ", " + tipe);
+        System.out.println("DEBUG KATEGORI: " + id + ", " + nama);
 
-        Kategori kategori = new Kategori(id, nama, tipe);
+        Kategori kategori = new Kategori(id, nama);
 
         try {
             if (getKategoriById(kategori.getId()) != null) {
@@ -58,22 +58,22 @@ public class KategoriServlet extends HttpServlet {
     }
 
     private void insertKategori(Kategori k) throws SQLException {
-        String sql = "INSERT INTO kategori (id, nama, tipe) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO kategori (id, nama) VALUES (?, ?)";
         try (Connection conn = JDBC.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, k.getId());
             stmt.setString(2, k.getNama());
-            stmt.setString(3, k.getTipe());
+            // stmt.setString(3, k.getTipe()); // Removed
             int rows = stmt.executeUpdate();
             System.out.println("DEBUG INSERT ROWS: " + rows);
         }
     }
 
     private void updateKategori(Kategori k) throws SQLException {
-        String sql = "UPDATE kategori SET nama=?, tipe=? WHERE id=?";
+        String sql = "UPDATE kategori SET nama=? WHERE id=?";
         try (Connection conn = JDBC.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, k.getNama());
-            stmt.setString(2, k.getTipe());
-            stmt.setString(3, k.getId());
+            // stmt.setString(2, k.getTipe()); // Removed
+            stmt.setString(2, k.getId());
             stmt.executeUpdate();
         }
     }
@@ -94,8 +94,7 @@ public class KategoriServlet extends HttpServlet {
                 if (rs.next()) {
                     return new Kategori(
                             rs.getString("id"),
-                            rs.getString("nama"),
-                            rs.getString("tipe"));
+                            rs.getString("nama"));
                 }
             }
         }
@@ -111,8 +110,7 @@ public class KategoriServlet extends HttpServlet {
             while (rs.next()) {
                 list.add(new Kategori(
                         rs.getString("id"),
-                        rs.getString("nama"),
-                        rs.getString("tipe")));
+                        rs.getString("nama")));
             }
         }
         return list;

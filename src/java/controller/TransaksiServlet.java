@@ -204,7 +204,7 @@ public class TransaksiServlet extends HttpServlet {
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                list.add(new Kategori(rs.getString("id"), rs.getString("nama"), rs.getString("tipe")));
+                list.add(new Kategori(rs.getString("id"), rs.getString("nama")));
             }
         }
         return list;

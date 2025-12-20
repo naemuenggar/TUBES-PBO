@@ -31,15 +31,6 @@
                         <input type="text" name="nama" value="${kategori.nama}" required
                             placeholder="Misal: Makanan, Transport">
                     </div>
-                    <div class="form-group">
-                        <label>Tipe</label>
-                        <select name="tipe">
-                            <option value="pemasukan" ${kategori.tipe=="pemasukan" ? "selected" : "" }>Pemasukan
-                            </option>
-                            <option value="pengeluaran" ${kategori.tipe=="pengeluaran" ? "selected" : "" }>Pengeluaran
-                            </option>
-                        </select>
-                    </div>
 
                     <div style="margin-top: 2rem; display: flex; gap: 1rem;">
                         <input type="submit" value="Simpan" class="btn btn-primary" style="flex: 1;">

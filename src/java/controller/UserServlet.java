@@ -3,6 +3,7 @@ package controller;
 
 import model.User;
 import util.JDBC;
+import util.PasswordUtil;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -35,17 +36,29 @@ public class UserServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        User user = new User(
-                req.getParameter("id"),
-                req.getParameter("nama"),
-                req.getParameter("email"),
-                req.getParameter("password"),
-                req.getParameter("role") != null ? req.getParameter("role") : "user");
+        String id = req.getParameter("id");
+        String nama = req.getParameter("nama");
+        String email = req.getParameter("email");
+        String password = req.getParameter("password");
+        String role = req.getParameter("role") != null ? req.getParameter("role") : "user";
 
         try {
-            if (getUserById(user.getId()) != null) {
+            User existingUser = getUserById(id);
+
+            if (existingUser != null) {
+                // Update existing user - only hash if password changed
+                String finalPassword;
+                if (password != null && !password.isEmpty() && !password.equals(existingUser.getPassword())) {
+                    finalPassword = PasswordUtil.hashPassword(password);
+                } else {
+                    finalPassword = existingUser.getPassword();
+                }
+                User user = new User(id, nama, email, finalPassword, role);
                 updateUser(user);
             } else {
+                // New user - hash password
+                String hashedPassword = PasswordUtil.hashPassword(password);
+                User user = new User(id, nama, email, hashedPassword, role);
                 insertUser(user);
             }
             res.sendRedirect("UserServlet");

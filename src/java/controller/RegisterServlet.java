@@ -3,6 +3,7 @@ package controller;
 
 import model.User;
 import util.JDBC;
+import util.PasswordUtil;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -67,8 +68,11 @@ public class RegisterServlet extends HttpServlet {
             // Generate unique ID (simple: use timestamp + random)
             String userId = "user_" + System.currentTimeMillis();
 
+            // Hash password before storing
+            String hashedPassword = PasswordUtil.hashPassword(password);
+
             // Create new user with 'user' role (not admin)
-            User newUser = new User(userId, nama, email, password, "user");
+            User newUser = new User(userId, nama, email, hashedPassword, "user");
             insertUser(newUser);
 
             // Auto-login after successful registration

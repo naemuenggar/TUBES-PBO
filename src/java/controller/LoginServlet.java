@@ -3,6 +3,7 @@ package controller;
 
 import model.User;
 import util.JDBC;
+import util.PasswordUtil;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -55,22 +56,26 @@ public class LoginServlet extends HttpServlet {
     }
 
     private User authenticateUser(String email, String password) throws SQLException {
-        String sql = "SELECT * FROM user WHERE email = ? AND password = ?";
+        String sql = "SELECT * FROM user WHERE email = ?";
 
         try (Connection conn = JDBC.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, email);
-            stmt.setString(2, password);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return new User(
-                            rs.getString("id"),
-                            rs.getString("nama"),
-                            rs.getString("email"),
-                            rs.getString("password"),
-                            rs.getString("role"));
+                    String storedPassword = rs.getString("password");
+
+                    // Verify password with hash
+                    if (PasswordUtil.verifyPassword(password, storedPassword)) {
+                        return new User(
+                                rs.getString("id"),
+                                rs.getString("nama"),
+                                rs.getString("email"),
+                                storedPassword,
+                                rs.getString("role"));
+                    }
                 }
             }
         }

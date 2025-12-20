@@ -54,6 +54,16 @@
     <url-pattern>/RegisterServlet</url-pattern>
   </servlet-mapping>
 
+  <!-- Profile Servlet -->
+  <servlet>
+    <servlet-name>ProfileServlet</servlet-name>
+    <servlet-class>controller.ProfileServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ProfileServlet</servlet-name>
+    <url-pattern>/ProfileServlet</url-pattern>
+  </servlet-mapping>
+
   <servlet>
     <servlet-name>UserServlet</servlet-name>
     <servlet-class>controller.UserServlet</servlet-class>

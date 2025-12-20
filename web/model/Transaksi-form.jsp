@@ -68,7 +68,7 @@
                                 <option value="">-- Pilih Kategori --</option>
                                 <c:forEach var="k" items="${kategoris}">
                                     <option value="${k.id}" ${transaksi.kategoriId==k.id ? 'selected' : '' }>${k.nama}
-                                        [${k.tipe}]</option>
+                                    </option>
                                 </c:forEach>
                             </select>
                         </div>

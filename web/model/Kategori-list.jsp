@@ -31,7 +31,6 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Nama Kategori</th>
-                                    <th>Tipe</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -40,12 +39,6 @@
                                     <tr>
                                         <td>${k.id}</td>
                                         <td><strong>${k.nama}</strong></td>
-                                        <td>
-                                            <span
-                                                class="tag ${k.tipe == 'pemasukan' ? 'tag-pemasukan' : 'tag-pengeluaran'}">
-                                                ${k.tipe}
-                                            </span>
-                                        </td>
                                         <td>
                                             <a href="KategoriServlet?action=edit&id=${k.id}"
                                                 class="btn btn-sm btn-primary"
