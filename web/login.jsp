@@ -118,6 +118,7 @@
                 color: var(--text);
                 transition: all 0.2s;
                 font-family: inherit;
+                box-sizing: border-box;
             }
 
             input:focus {

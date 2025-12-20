@@ -21,10 +21,10 @@
             <div class="card">
                 <h2 style="margin-top: 0; margin-bottom: 1.5rem;">${user.id == null ? "Tambah" : "Edit"} User</h2>
                 <form action="../UserServlet" method="post">
-                    <div class="form-group">
-                        <label>ID User</label>
-                        <input type="text" name="id" value="${user.id}" required placeholder="Contoh: U001">
-                    </div>
+                    <!-- ID hidden for update -->
+                    <c:if test="${not empty user.id}">
+                        <input type="hidden" name="id" value="${user.id}">
+                    </c:if>
                     <div class="form-group">
                         <label>Nama Lengkap</label>
                         <input type="text" name="nama" value="${user.nama}" required placeholder="Nama User">

@@ -11,6 +11,8 @@ import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+// import java.util.UUID; // Removed since using IdGenerator
+import util.IdGenerator;
 
 public class TransaksiServlet extends HttpServlet {
 
@@ -71,8 +73,13 @@ public class TransaksiServlet extends HttpServlet {
         System.out.println("DEBUG POST: kategoriId=" + req.getParameter("kategoriId"));
         System.out.println("DEBUG POST: jumlah=" + req.getParameter("jumlah"));
 
+        String id = req.getParameter("id");
+        if (id == null || id.trim().isEmpty()) {
+            id = IdGenerator.generateSimple();
+        }
+
         Transaksi t = new Transaksi(
-                req.getParameter("id"),
+                id,
                 req.getParameter("userId"),
                 Double.parseDouble(req.getParameter("jumlah")),
                 req.getParameter("deskripsi"),

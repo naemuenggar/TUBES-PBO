@@ -9,6 +9,7 @@ import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+import util.IdGenerator;
 
 import model.User;
 
@@ -40,8 +41,13 @@ public class TagihanServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String id = req.getParameter("id");
+        if (id == null || id.trim().isEmpty()) {
+            id = IdGenerator.generateSimple();
+        }
+
         Tagihan t = new Tagihan(
-                req.getParameter("id"),
+                id,
                 req.getParameter("userId"),
                 req.getParameter("nama"),
                 Double.parseDouble(req.getParameter("jumlah")),

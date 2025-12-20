@@ -9,6 +9,8 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
+// import java.util.UUID; // Removed
+import util.IdGenerator;
 
 public class RegisterServlet extends HttpServlet {
 
@@ -65,8 +67,8 @@ public class RegisterServlet extends HttpServlet {
                 return;
             }
 
-            // Generate unique ID (simple: use timestamp + random)
-            String userId = "user_" + System.currentTimeMillis();
+            // Generate unique ID (Username from email)
+            String userId = IdGenerator.generateFromEmail(email);
 
             // Hash password before storing
             String hashedPassword = PasswordUtil.hashPassword(password);

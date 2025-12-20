@@ -22,10 +22,10 @@
                 <h2 style="margin-top: 0; margin-bottom: 1.5rem;">${kategori.id == null ? "Tambah" : "Edit"} Kategori
                 </h2>
                 <form action="${pageContext.request.contextPath}/KategoriServlet" method="post">
-                    <div class="form-group">
-                        <label>ID Kategori</label>
-                        <input type="text" name="id" value="${kategori.id}" required placeholder="Contoh: K001">
-                    </div>
+                    <!-- ID hidden for update, empty for create -->
+                    <c:if test="${not empty kategori.id}">
+                        <input type="hidden" name="id" value="${kategori.id}">
+                    </c:if>
                     <div class="form-group">
                         <label>Nama Kategori</label>
                         <input type="text" name="nama" value="${kategori.nama}" required
