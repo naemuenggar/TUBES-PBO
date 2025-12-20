@@ -1,0 +1,33 @@
+# Build outputs
+build/
+dist/
+target/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+nbproject/private/
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*~
