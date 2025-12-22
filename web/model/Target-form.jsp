@@ -23,10 +23,10 @@
                     <h2 style="margin-top: 0; margin-bottom: 1.5rem;">${target.id == null ? "Tambah" : "Edit"} Target
                         Tabungan</h2>
                     <form action="${pageContext.request.contextPath}/TargetTabunganServlet" method="post">
-                        <div class="form-group">
-                            <label>ID Target</label>
-                            <input type="text" name="id" value="${target.id}" required placeholder="Contoh: TGT001">
-                        </div>
+                        <!-- ID hidden for update -->
+                        <c:if test="${not empty target.id}">
+                            <input type="hidden" name="id" value="${target.id}">
+                        </c:if>
                         <div class="form-group">
                             <label>User</label>
                             <select name="userId" required>

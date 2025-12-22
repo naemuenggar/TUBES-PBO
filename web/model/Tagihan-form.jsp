@@ -23,10 +23,9 @@
                     <h2 style="margin-top: 0; margin-bottom: 1.5rem;">${tagihan.id == null ? "Tambah" : "Edit"} Tagihan
                     </h2>
                     <form action="${pageContext.request.contextPath}/TagihanServlet" method="post">
-                        <div class="form-group">
-                            <label>ID Tagihan</label>
-                            <input type="text" name="id" value="${tagihan.id}" required placeholder="Contoh: BILL001">
-                        </div>
+                        <c:if test="${not empty tagihan.id}">
+                            <input type="hidden" name="id" value="${tagihan.id}">
+                        </c:if>
                         <div class="form-group">
                             <label>User</label>
                             <select name="userId" required>

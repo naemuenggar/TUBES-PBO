@@ -163,6 +163,15 @@
     <url-pattern>/LaporanServlet</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>MigrationServlet</servlet-name>
+    <servlet-class>controller.MigrationServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MigrationServlet</servlet-name>
+    <url-pattern>/MigrationServlet</url-pattern>
+  </servlet-mapping>
+
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>

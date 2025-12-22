@@ -30,10 +30,10 @@
                             <input type="hidden" name="sourceTagihanId" value="${sourceTagihanId}">
                         </c:if>
 
-                        <div class="form-group">
-                            <label>ID Transaksi</label>
-                            <input type="text" name="id" value="${transaksi.id}" required placeholder="Contoh: T001">
-                        </div>
+                        <!-- ID hidden for update -->
+                        <c:if test="${not empty transaksi.id}">
+                            <input type="hidden" name="id" value="${transaksi.id}">
+                        </c:if>
 
                         <div class="form-group">
                             <label>User</label>

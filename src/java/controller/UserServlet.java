@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+// import java.util.UUID; // Removed
+import util.IdGenerator;
 
 public class UserServlet extends HttpServlet {
 
@@ -41,6 +43,10 @@ public class UserServlet extends HttpServlet {
         String email = req.getParameter("email");
         String password = req.getParameter("password");
         String role = req.getParameter("role") != null ? req.getParameter("role") : "user";
+
+        if (id == null || id.trim().isEmpty()) {
+            id = IdGenerator.generateFromEmail(email);
+        }
 
         try {
             User existingUser = getUserById(id);

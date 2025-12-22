@@ -9,6 +9,8 @@ import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+import java.util.UUID;
+import util.IdGenerator;
 
 public class KategoriServlet extends HttpServlet {
 
@@ -41,6 +43,15 @@ public class KategoriServlet extends HttpServlet {
         // String tipe = req.getParameter("tipe"); // Removed
 
         System.out.println("DEBUG KATEGORI: " + id + ", " + nama);
+
+        if (id == null || id.trim().isEmpty()) {
+            try (Connection conn = JDBC.getConnection()) {
+                id = IdGenerator.getNextId(conn, "kategori");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                id = IdGenerator.generateSimple(); // Fallback
+            }
+        }
 
         Kategori kategori = new Kategori(id, nama);
 
