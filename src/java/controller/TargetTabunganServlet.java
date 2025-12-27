@@ -2,6 +2,7 @@
 package controller;
 
 import model.TargetTabungan;
+import model.TargetWithProgress;
 import util.JDBC;
 
 import javax.servlet.*;
@@ -31,7 +32,7 @@ public class TargetTabunganServlet extends HttpServlet {
                 delete(req.getParameter("id"));
                 res.sendRedirect("TargetTabunganServlet");
             } else {
-                List<TargetTabungan> list = getAll();
+                List<TargetWithProgress> list = getAllWithProgress();
                 req.setAttribute("targets", list);
                 req.getRequestDispatcher("/model/Target-list.jsp").forward(req, res);
             }
@@ -128,6 +129,27 @@ public class TargetTabunganServlet extends HttpServlet {
                         rs.getString("user_id"),
                         rs.getString("nama"),
                         rs.getDouble("jumlah_target")));
+            }
+        }
+        return list;
+    }
+
+    private List<TargetWithProgress> getAllWithProgress() throws SQLException {
+        List<TargetWithProgress> list = new ArrayList<>();
+        String sql = "SELECT t.id, t.user_id, t.nama, t.jumlah_target, " +
+                "COALESCE(f.progress, 0) as current_progress " +
+                "FROM target_tabungan t " +
+                "LEFT JOIN fingoal f ON t.id = f.target_id";
+        try (Connection conn = JDBC.getConnection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(new TargetWithProgress(
+                        rs.getString("id"),
+                        rs.getString("user_id"),
+                        rs.getString("nama"),
+                        rs.getDouble("jumlah_target"),
+                        rs.getDouble("current_progress")));
             }
         }
         return list;

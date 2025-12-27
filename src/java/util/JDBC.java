@@ -5,9 +5,9 @@ import java.sql.*;
 
 public class JDBC {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/moneymate";
+    private static final String URL = "jdbc:mysql://localhost:3306/MoneyMate";
     private static final String USER = "root";
-    private static final String PASS = "1234";
+    private static final String PASS = "";
 
     public static Connection getConnection() throws SQLException {
         try {
