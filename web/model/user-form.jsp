@@ -2,7 +2,8 @@
     <jsp:useBean id="user" class="model.User" scope="request" />
 
     <head>
-        <title>${user.id == null ? "Tambah" : "Edit"} User</title>
+        <meta charset="UTF-8">
+        <title>${user.id == null ? "Register" : "Edit"} User</title>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap" rel="stylesheet">
     </head>
@@ -10,7 +11,7 @@
     <body>
 
         <nav class="navbar">
-            <a href="${pageContext.request.contextPath}/" class="brand">💰 MoneyMate</a>
+            <a href="${pageContext.request.contextPath}/" class="brand">&#128176; MoneyMate</a>
             <div class="nav-links">
                 <a href="${pageContext.request.contextPath}/">Dashboard</a>
                 <a href="../UserServlet">Users</a>
@@ -40,8 +41,8 @@
 
                     <div style="margin-top: 2rem; display: flex; gap: 1rem;">
                         <input type="submit" value="Simpan" class="btn btn-primary" style="flex: 1;">
-                        <a href="../UserServlet" class="btn btn-danger"
-                            style="background-color: #e2e8f0; color: #333; flex: 1;">Batal</a>
+                        <a href="${pageContext.request.contextPath}/UserServlet" class="btn btn-danger"
+                            style="background-color: #6c757d; color: white; flex: 1; text-align: center; text-decoration: none;">Kembali</a>
                     </div>
                 </form>
             </div>

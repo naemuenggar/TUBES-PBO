@@ -55,6 +55,9 @@ public class SetupDB {
                     }
                 }
                 System.out.println("\nDatabase schema imported successfully!");
+                
+                // 3. Seed Data
+                seedData(conn);
             }
 
         } catch (Exception e) {
@@ -62,6 +65,48 @@ public class SetupDB {
             System.err.println("Make sure MySQL is running (XAMPP?) and password is empty for 'root'.");
             e.printStackTrace();
             System.exit(1);
+        }
+    }
+
+    private static void seedData(Connection conn) {
+        System.out.println("Seeding initial data...");
+        try (Statement stmt = conn.createStatement()) {
+            // Seed Users
+            safeExec(stmt, "INSERT IGNORE INTO user (id, nama, email, password, role) VALUES " +
+                    "('u1', 'Admin MoneyMate', 'admin@moneymate.com', 'admin123', 'admin'), " +
+                    "('u2', 'User Test', 'user@moneymate.com', 'user123', 'user')");
+            
+            // Seed Categories (Pemasukan)
+            safeExec(stmt, "INSERT IGNORE INTO kategori (id, nama, tipe) VALUES " +
+                    "('k1', 'Gaji', 'pemasukan'), " +
+                    "('k2', 'Hadiah', 'pemasukan'), " +
+                    "('k3', 'Investasi', 'pemasukan'), " +
+                    "('k4', 'Penjualan', 'pemasukan'), " +
+                    "('k5', 'Lainnya', 'pemasukan')");
+
+            // Seed Categories (Pengeluaran)
+            safeExec(stmt, "INSERT IGNORE INTO kategori (id, nama, tipe) VALUES " +
+                    "('k6', 'Makanan & Minuman', 'pengeluaran'), " +
+                    "('k7', 'Transportasi', 'pengeluaran'), " +
+                    "('k8', 'Belanja', 'pengeluaran'), " +
+                    "('k9', 'Tagihan & Utilitas', 'pengeluaran'), " +
+                    "('k10', 'Hiburan', 'pengeluaran'), " +
+                    "('k11', 'Kesehatan', 'pengeluaran'), " +
+                    "('k12', 'Pendidikan', 'pengeluaran'), " +
+                    "('k13', 'Asuransi', 'pengeluaran')");
+
+            System.out.println("Data seeding completed!");
+        } catch (Exception e) {
+            System.err.println("Error seeding data: " + e.getMessage());
+        }
+    }
+
+    private static void safeExec(Statement stmt, String sql) {
+        try {
+            stmt.executeUpdate(sql);
+        } catch (Exception e) {
+            // Ignore (likely duplicate)
+            System.out.println("Info: " + e.getMessage());
         }
     }
 }

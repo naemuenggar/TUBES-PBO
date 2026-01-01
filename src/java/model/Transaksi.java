@@ -8,6 +8,7 @@ public class Transaksi {
     protected double jumlah;
     protected Date tanggal;
     protected String kategoriId;
+    protected String kategoriNama; // Added for display purposes
 
     public Transaksi() {
     }
@@ -77,5 +78,13 @@ public class Transaksi {
 
     public void setJenis(String jenis) {
         this.jenis = jenis;
+    }
+
+    public String getKategoriNama() {
+        return kategoriNama;
+    }
+
+    public void setKategoriNama(String kategoriNama) {
+        this.kategoriNama = kategoriNama;
     }
 }

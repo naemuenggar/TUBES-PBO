@@ -16,7 +16,7 @@
         <body>
 
             <nav class="navbar">
-                <a href="${pageContext.request.contextPath}/" class="brand">💰 MoneyMate</a>
+                <a href="${pageContext.request.contextPath}/" class="brand">&#128176; MoneyMate</a>
                 <div class="nav-links">
                     <a href="${pageContext.request.contextPath}/">Dashboard</a>
                     <a href="UserServlet">Users</a>
@@ -66,6 +66,11 @@
                 </div>
             </div>
 
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <a href="${pageContext.request.contextPath}/" class="btn btn-secondary"
+                    style="background-color: #6c757d; color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; display: inline-block;">Kembali
+                    ke Dashboard</a>
+            </div>
         </body>
 
         </html>

@@ -5,6 +5,7 @@ import model.Transaksi;
 import model.User;
 import model.Kategori;
 import util.JDBC;
+import util.ParseUtils; // Added import
 import java.sql.Date;
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -176,19 +177,26 @@ public class TransaksiServlet extends HttpServlet {
 
     private List<Transaksi> getAllTransaksi() throws SQLException {
         List<Transaksi> list = new ArrayList<>();
-        String sql = "SELECT * FROM transaksi";
+        // JOINT QUERY to get category name
+        String sql = "SELECT t.*, k.nama AS kategori_nama " +
+                     "FROM transaksi t " +
+                     "LEFT JOIN kategori k ON t.kategori_id = k.id";
+        
         try (Connection conn = JDBC.getConnection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                list.add(new Transaksi(
+                Transaksi t = new Transaksi(
                         rs.getString("id"),
                         rs.getString("user_id"),
                         rs.getDouble("jumlah"),
                         rs.getString("deskripsi"),
                         rs.getDate("tanggal"),
                         rs.getString("kategori_id"),
-                        rs.getString("jenis")));
+                        rs.getString("jenis"));
+                // Set the name from the join result
+                t.setKategoriNama(rs.getString("kategori_nama"));
+                list.add(t);
             }
         }
         return list;

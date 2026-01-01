@@ -1,0 +1,200 @@
+﻿a.core.StandardServer.
+startInternal(Standard
+Server.java:921)
+	at org.apache.catalin
+a.util.LifecycleBase.s
+tart(LifecycleBase.jav
+a:171)
+	at org.apache.catalin
+a.startup.Tomcat.start
+(Tomcat.java:489)
+	at ServerLauncher.mai
+n(ServerLauncher.java:
+38)
+Caused by: java.util.c
+oncurrent.ExecutionExc
+eption: org.apache.cat
+alina.LifecycleExcepti
+on: A child container 
+failed during start
+	at java.base/java.uti
+l.concurrent.FutureTas
+k.report(FutureTask.ja
+va:124)
+	at java.base/java.uti
+l.concurrent.FutureTas
+k.get(FutureTask.java:
+193)
+	at org.apache.catalin
+a.core.ContainerBase.s
+tartInternal(Container
+Base.java:873)
+	... 8 more
+Caused by: org.apache.
+catalina.LifecycleExce
+ption: A child 
+container failed 
+during start
+	at org.apache.catalin
+a.core.ContainerBase.s
+tartInternal(Container
+Base.java:885)
+	at org.apache.catalin
+a.core.StandardHost.st
+artInternal(StandardHo
+st.java:794)
+	at org.apache.catalin
+a.util.LifecycleBase.s
+tart(LifecycleBase.jav
+a:171)
+	at org.apache.catalin
+a.core.ContainerBase$S
+tartChild.call(Contain
+erBase.java:1332)
+	at org.apache.catalin
+a.core.ContainerBase$S
+tartChild.call(Contain
+erBase.java:1322)
+	at java.base/java.uti
+l.concurrent.FutureTas
+k.run(FutureTask.java:
+328)
+	at org.apache.tomcat.
+util.threads.InlineExe
+cutorService.execute(I
+nlineExecutorService.j
+ava:75)
+	at java.base/java.uti
+l.concurrent.AbstractE
+xecutorService.submit(
+AbstractExecutorServic
+e.java:149)
+	at org.apache.catalin
+a.core.ContainerBase.s
+tartInternal(Container
+Base.java:866)
+	... 8 more
+Caused by: java.util.c
+oncurrent.ExecutionExc
+eption: org.apache.cat
+alina.LifecycleExcepti
+on: Failed to start 
+component [StandardEng
+ine[Tomcat].StandardHo
+st[localhost].Standard
+Context[]]
+	at java.base/java.uti
+l.concurrent.FutureTas
+k.report(FutureTask.ja
+va:124)
+	at java.base/java.uti
+l.concurrent.FutureTas
+k.get(FutureTask.java:
+193)
+	at org.apache.catalin
+a.core.ContainerBase.s
+tartInternal(Container
+Base.java:873)
+	... 16 more
+Caused by: org.apache.
+catalina.LifecycleExce
+ption: Failed to 
+start component [Stand
+ardEngine[Tomcat].Stan
+dardHost[localhost].St
+andardContext[]]
+	at org.apache.catalin
+a.util.LifecycleBase.h
+andleSubClassException
+(LifecycleBase.java:41
+9)
+	at org.apache.catalin
+a.util.LifecycleBase.s
+tart(LifecycleBase.jav
+a:186)
+	at org.apache.catalin
+a.core.ContainerBase$S
+tartChild.call(Contain
+erBase.java:1332)
+	at org.apache.catalin
+a.core.ContainerBase$S
+tartChild.call(Contain
+erBase.java:1322)
+	at java.base/java.uti
+l.concurrent.FutureTas
+k.run(FutureTask.java:
+328)
+	at org.apache.tomcat.
+util.threads.InlineExe
+cutorService.execute(I
+nlineExecutorService.j
+ava:75)
+	at java.base/java.uti
+l.concurrent.AbstractE
+xecutorService.submit(
+AbstractExecutorServic
+e.java:149)
+	at org.apache.catalin
+a.core.ContainerBase.s
+tartInternal(Container
+Base.java:866)
+	... 16 more
+Caused by: java.lang.N
+oClassDefFoundError: j
+avax/annotation/Resour
+ce
+	at org.apache.catalin
+a.startup.WebAnnotatio
+nSet.loadClassAnnotati
+on(WebAnnotationSet.ja
+va:172)
+	at org.apache.catalin
+a.startup.WebAnnotatio
+nSet.loadApplicationSe
+rvletAnnotations(WebAn
+notationSet.java:136)
+	at org.apache.catalin
+a.startup.WebAnnotatio
+nSet.loadApplicationAn
+notations(WebAnnotatio
+nSet.java:69)
+	at org.apache.catalin
+a.startup.ContextConfi
+g.applicationAnnotatio
+nsConfig(ContextConfig
+.java:333)
+	at org.apache.catalin
+a.startup.ContextConfi
+g.configureStart(Conte
+xtConfig.java:994)
+	at org.apache.catalin
+a.startup.ContextConfi
+g.lifecycleEvent(Conte
+xtConfig.java:304)
+	at org.apache.catalin
+a.util.LifecycleBase.f
+ireLifecycleEvent(Life
+cycleBase.java:114)
+	at org.apache.catalin
+a.core.StandardContext
+.startInternal(Standar
+dContext.java:4820)
+	at org.apache.catalin
+a.util.LifecycleBase.s
+tart(LifecycleBase.jav
+a:171)
+	... 22 more
+Caused by: java.lang.C
+lassNotFoundException:
+ javax.annotation.Reso
+urce
+	at java.base/jdk.inte
+rnal.loader.BuiltinCla
+ssLoader.loadClass(Bui
+ltinClassLoader.java:5
+80)
+	at java.base/java.lan
+g.ClassLoader.loadClas
+s(ClassLoader.java:490
+)
+	... 31 more

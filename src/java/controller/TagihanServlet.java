@@ -3,6 +3,8 @@ package controller;
 
 import model.Tagihan;
 import util.JDBC;
+import model.Kategori; // Added import
+import util.ParseUtils; // Added import
 import java.sql.Date;
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -24,6 +26,13 @@ public class TagihanServlet extends HttpServlet {
                 req.setAttribute("tagihan", tagihan);
                 req.setAttribute("users", getAllUsers());
                 req.getRequestDispatcher("/model/Tagihan-form.jsp").forward(req, res);
+                req.getRequestDispatcher("/model/Tagihan-form.jsp").forward(req, res);
+            } else if ("payBill".equals(action)) {
+                String id = req.getParameter("id");
+                Tagihan tagihan = getById(id);
+                req.setAttribute("tagihan", tagihan);
+                req.setAttribute("kategoris", getAllKategori()); // Fetch categories for dropdown
+                req.getRequestDispatcher("/model/Bayar-tagihan.jsp").forward(req, res);
             } else if ("form".equals(action)) {
                 req.setAttribute("users", getAllUsers());
                 req.getRequestDispatcher("/model/Tagihan-form.jsp").forward(req, res);
@@ -41,6 +50,12 @@ public class TagihanServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String action = req.getParameter("action");
+        if ("processPayBill".equals(action)) {
+            processPayBill(req, res);
+            return;
+        }
+        
         String id = req.getParameter("id");
         if (id == null || id.trim().isEmpty()) {
             try (Connection conn = JDBC.getConnection()) {
@@ -150,6 +165,71 @@ public class TagihanServlet extends HttpServlet {
                         rs.getString("nama"),
                         rs.getString("email"),
                         rs.getString("password")));
+            }
+        }
+        return list;
+    }
+    private void processPayBill(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String tagihanId = req.getParameter("tagihanId");
+        String userId = req.getParameter("userId");
+        double jumlah = Double.parseDouble(req.getParameter("jumlah"));
+        String kategoriId = req.getParameter("kategoriId");
+        String deskripsi = req.getParameter("deskripsi");
+        Date tanggal = Date.valueOf(req.getParameter("tanggal"));
+
+        // 1. Insert Transaction (Pengeluaran)
+        String transaksiId;
+        try (Connection conn = JDBC.getConnection()) {
+            transaksiId = IdGenerator.getNextId(conn, "transaksi");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new ServletException("Error generating ID", e);
+        }
+
+        String insertSql = "INSERT INTO transaksi (id, user_id, jumlah, deskripsi, tanggal, kategori_id, jenis) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String deleteSql = "DELETE FROM tagihan WHERE id=?";
+
+        try (Connection conn = JDBC.getConnection()) {
+            conn.setAutoCommit(false); // Transaction block
+            try {
+                // Insert Transaksi
+                try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
+                    stmt.setString(1, transaksiId);
+                    stmt.setString(2, userId);
+                    stmt.setDouble(3, jumlah);
+                    stmt.setString(4, deskripsi);
+                    stmt.setDate(5, tanggal);
+                    stmt.setString(6, kategoriId);
+                    stmt.setString(7, "pengeluaran");
+                    stmt.executeUpdate();
+                }
+
+                // Delete Tagihan
+                try (PreparedStatement stmt = conn.prepareStatement(deleteSql)) {
+                    stmt.setString(1, tagihanId);
+                    stmt.executeUpdate();
+                }
+
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new ServletException(e);
+        }
+
+        res.sendRedirect("TagihanServlet");
+    }
+
+    private List<Kategori> getAllKategori() throws SQLException {
+        List<Kategori> list = new ArrayList<>();
+        String sql = "SELECT * FROM kategori";
+        try (Connection conn = JDBC.getConnection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(new Kategori(rs.getString("id"), rs.getString("nama")));
             }
         }
         return list;

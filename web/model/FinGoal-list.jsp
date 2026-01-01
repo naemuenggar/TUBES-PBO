@@ -4,7 +4,8 @@
         <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
             <head>
-                <title>Daftar FinGoal</title>
+                <meta charset="UTF-8">
+                <title>Financial Goals</title>
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
                 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap"
                     rel="stylesheet">
@@ -13,7 +14,7 @@
             <body>
 
                 <nav class="navbar">
-                    <a href="${pageContext.request.contextPath}/" class="brand">💰 MoneyMate</a>
+                    <a href="${pageContext.request.contextPath}/" class="brand">&#128176; MoneyMate</a>
                     <div class="nav-links">
                         <a href="${pageContext.request.contextPath}/">Dashboard</a>
                         <a href="FinGoalServlet">Financial Goals</a>
@@ -76,6 +77,11 @@
                             </table>
                         </div>
                     </div>
+                </div>
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <a href="${pageContext.request.contextPath}/" class="btn btn-secondary"
+                        style="background-color: #6c757d; color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; display: inline-block;">Kembali
+                        ke Dashboard</a>
                 </div>
             </body>
 

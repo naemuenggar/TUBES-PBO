@@ -4,15 +4,15 @@ package controller;
 import model.TargetTabungan;
 import model.TargetWithProgress;
 import util.JDBC;
+import util.IdGenerator;
+import util.ParseUtils; // Added import
+import model.User;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
-import util.IdGenerator;
-
-import model.User;
 
 public class TargetTabunganServlet extends HttpServlet {
 
@@ -31,6 +31,11 @@ public class TargetTabunganServlet extends HttpServlet {
             } else if ("delete".equals(action)) {
                 delete(req.getParameter("id"));
                 res.sendRedirect("TargetTabunganServlet");
+            } else if ("tabung".equals(action)) {
+                String id = req.getParameter("id");
+                TargetTabungan target = getById(id);
+                req.setAttribute("target", target);
+                req.getRequestDispatcher("/model/Tabung-target.jsp").forward(req, res);
             } else {
                 List<TargetWithProgress> list = getAllWithProgress();
                 req.setAttribute("targets", list);
@@ -42,6 +47,13 @@ public class TargetTabunganServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String action = req.getParameter("action");
+        
+        if ("processTabung".equals(action)) {
+            processTabung(req, res);
+            return;
+        }
+
         String id = req.getParameter("id");
         if (id == null || id.trim().isEmpty()) {
             try (Connection conn = JDBC.getConnection()) {
@@ -66,6 +78,54 @@ public class TargetTabunganServlet extends HttpServlet {
             }
             res.sendRedirect("TargetTabunganServlet");
         } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
+
+    private void processTabung(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String targetId = req.getParameter("targetId");
+        double jumlahSetor = Double.parseDouble(req.getParameter("jumlahSetor"));
+        
+        try (Connection conn = JDBC.getConnection()) {
+            // Check if fingoal exists for this target
+            String checkSql = "SELECT id, progress FROM fingoal WHERE target_id = ?";
+            String fingoalId = null;
+            double currentProgress = 0;
+            
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setString(1, targetId);
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next()) {
+                        fingoalId = rs.getString("id");
+                        currentProgress = rs.getDouble("progress");
+                    }
+                }
+            }
+            
+            if (fingoalId != null) {
+                // Update existing
+                String updateSql = "UPDATE fingoal SET progress = ? WHERE id = ?";
+                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                    updateStmt.setDouble(1, currentProgress + jumlahSetor);
+                    updateStmt.setString(2, fingoalId);
+                    updateStmt.executeUpdate();
+                }
+            } else {
+                // Insert new
+                String newId = IdGenerator.getNextId(conn, "fingoal");
+                String insertSql = "INSERT INTO fingoal (id, target_id, progress, status) VALUES (?, ?, ?, ?)";
+                try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                    insertStmt.setString(1, newId);
+                    insertStmt.setString(2, targetId);
+                    insertStmt.setDouble(3, jumlahSetor);
+                    insertStmt.setString(4, "Belum Tercapai");
+                    insertStmt.executeUpdate();
+                }
+            }
+            
+            res.sendRedirect("TargetTabunganServlet");
+            
+        } catch (SQLException e) {
             throw new ServletException(e);
         }
     }

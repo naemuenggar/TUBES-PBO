@@ -1,0 +1,10 @@
+ Volume in drive D is SSD Storage
+ Volume Serial Number is 14CB-34FD
+
+ Directory of D:\1. COLLEGE\SEMESTER 5\PBO\TUBES\proyek-akhir-kelompok-7-pbo\libs
+
+01/01/2026  20:46    <DIR>          .
+01/01/2026  21:39    <DIR>          ..
+01/01/2026  19:58         2.602.851 mysql-connector.jar
+               1 File(s)      2.602.851 bytes
+               2 Dir(s)  271.306.481.664 bytes free

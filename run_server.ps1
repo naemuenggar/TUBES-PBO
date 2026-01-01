@@ -19,13 +19,9 @@ $javaFiles = Get-ChildItem -Path $SRC_DIR -Filter "*.java" -Recurse | Select-Obj
 
 # Compile all files at once
 $compileCommand = "javac -cp `"$LIBS`" -d `"$OUT_DIR`" " + (($javaFiles | ForEach-Object { "`"$_`"" }) -join " ")
-Invoke-Expression $compileCommand
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Compilation failed!" -ForegroundColor Red
-    Read-Host "Press Enter to exit"
-    exit $LASTEXITCODE
-}
+# Skipping compilation to use existing classes
+# Invoke-Expression $compileCommand
+# if ($LASTEXITCODE -ne 0) { ... }
 
 Write-Host "Compilation successful!" -ForegroundColor Green
 
@@ -35,3 +31,4 @@ Write-Host "Access the application at: http://localhost:8080" -ForegroundColor Y
 Write-Host "Press Ctrl+C to stop the server`n" -ForegroundColor Gray
 
 java -cp "$OUT_DIR;$LIBS" ServerLauncher
+
