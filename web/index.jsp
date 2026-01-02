@@ -293,8 +293,17 @@
                                                     <% if (!dueBills.isEmpty()) { %>
                                                         <h4
                                                             style="color: var(--danger); margin-top:0; margin-bottom: 10px;">
-                                                            ⚠️ Tagihan Jatuh Tempo (3 Hari)</h4>
-                                                        <% for (Tagihan t : dueBills) { %>
+                                                            ⚠️ Tagihan Jatuh Tempo (Segera)</h4>
+                                                        <% for (Tagihan t : dueBills) { java.sql.Date sqlDate=new
+                                                            java.sql.Date(t.getTanggalJatuhTempo().getTime());
+                                                            java.time.LocalDate dueDate=sqlDate.toLocalDate();
+                                                            java.time.LocalDate today=java.time.LocalDate.now(); long
+                                                            daysBetween=java.time.temporal.ChronoUnit.DAYS.between(today,
+                                                            dueDate); String dueText; String colorStyle="color:#666;" ;
+                                                            if (daysBetween <=0) { dueText="Hari Ini!" ;
+                                                            colorStyle="color:var(--danger); font-weight:bold;" ; } else
+                                                            { dueText=daysBetween + " Hari Lagi" ; if(daysBetween==1)
+                                                            colorStyle="color:var(--warning); font-weight:bold;" ; } %>
                                                             <div class="bill-item">
                                                                 <div
                                                                     style="display:flex; justify-content:space-between; align-items:center;">
@@ -307,8 +316,9 @@
                                                                     </span>
                                                                 </div>
                                                                 <div
-                                                                    style="font-size:0.85rem; color:#666; margin-top:4px;">
-                                                                    Jatuh Tempo: <%= t.getTanggalJatuhTempo() %>
+                                                                    style="font-size:0.85rem; <%= colorStyle %> margin-top:4px;">
+                                                                    Jatuh Tempo: <%= t.getTanggalJatuhTempo() %> (<%=
+                                                                            dueText %>)
                                                                 </div>
                                                                 <div style="text-align:right; margin-top:8px;">
                                                                     <a href="${pageContext.request.contextPath}/TagihanServlet?action=payBill&id=<%= t.getId() %>"

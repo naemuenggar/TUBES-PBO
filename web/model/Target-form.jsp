@@ -33,13 +33,22 @@
                             </c:if>
                             <div class="form-group">
                                 <label>User</label>
-                                <select name="userId" required>
-                                    <option value="">-- Pilih User --</option>
-                                    <c:forEach var="u" items="${users}">
-                                        <option value="${u.id}" ${target.userId==u.id ? 'selected' : '' }>${u.nama}
-                                            (${u.email})</option>
-                                    </c:forEach>
-                                </select>
+                                <c:choose>
+                                    <c:when test="${sessionScope.user.role == 'admin'}">
+                                        <select name="userId" required>
+                                            <option value="">-- Pilih User --</option>
+                                            <c:forEach var="u" items="${users}">
+                                                <option value="${u.id}" ${target.userId==u.id ? 'selected' : '' }>
+                                                    ${u.nama} (${u.email})</option>
+                                            </c:forEach>
+                                        </select>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <input type="text" value="${sessionScope.user.nama}" readonly
+                                            style="background-color: #f1f5f9; cursor: not-allowed;">
+                                        <input type="hidden" name="userId" value="${sessionScope.user.id}">
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                             <div class="form-group">
                                 <label>Nama Target</label>

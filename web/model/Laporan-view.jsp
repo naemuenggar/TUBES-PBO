@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+        <fmt:setLocale value="id_ID" />
         <jsp:useBean id="laporan" scope="request" type="model.Laporan" />
 
         <head>
@@ -26,22 +27,22 @@
                     style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
                     <div class="card" style="text-align: center;">
                         <h3>Total Pemasukan</h3>
-                        <p style="font-size: 2rem; color: #2ecc71; font-weight: bold; margin: 1rem 0;">Rp
-                            <fmt:formatNumber value="${laporan.totalPemasukan}" pattern="#,###" />
+                        <p class="report-value" style="color: #2ecc71;">
+                            <fmt:formatNumber value="${laporan.totalPemasukan}" type="currency" currencySymbol="Rp" />
                         </p>
                     </div>
 
                     <div class="card" style="text-align: center;">
                         <h3>Total Pengeluaran</h3>
-                        <p style="font-size: 2rem; color: #e74c3c; font-weight: bold; margin: 1rem 0;">Rp
-                            <fmt:formatNumber value="${laporan.totalPengeluaran}" pattern="#,###" />
+                        <p class="report-value" style="color: #e74c3c;">
+                            <fmt:formatNumber value="${laporan.totalPengeluaran}" type="currency" currencySymbol="Rp" />
                         </p>
                     </div>
 
                     <div class="card" style="text-align: center; border: 2px solid var(--accent);">
                         <h3>Sisa Saldo</h3>
-                        <p style="font-size: 2rem; color: var(--accent); font-weight: bold; margin: 1rem 0;">Rp
-                            <fmt:formatNumber value="${laporan.saldo}" pattern="#,###" />
+                        <p class="report-value" style="color: var(--accent);">
+                            <fmt:formatNumber value="${laporan.saldo}" type="currency" currencySymbol="Rp" />
                         </p>
                     </div>
                 </div>
@@ -51,6 +52,19 @@
                     style="background-color: #6c757d; color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; display: inline-block;">Kembali
                     ke Dashboard</a>
             </div>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const values = document.querySelectorAll('.report-value');
+                    values.forEach(el => {
+                        let currentSize = 2.0; // Start at 2rem
+                        // While content is wider than container and font is readable (> 0.8rem)
+                        while (el.scrollWidth > el.clientWidth && currentSize > 0.8) {
+                            currentSize -= 0.1;
+                            el.style.fontSize = currentSize + 'rem';
+                        }
+                    });
+                });
+            </script>
         </body>
 
         </html>

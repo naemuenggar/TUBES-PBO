@@ -170,6 +170,8 @@
                         color: var(--text);
                         transition: all 0.2s;
                         font-family: inherit;
+                        box-sizing: border-box;
+                        /* Fix for overflow */
                     }
 
                     input:focus {

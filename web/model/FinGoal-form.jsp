@@ -24,22 +24,28 @@
                     <h2 style="margin-top: 0; margin-bottom: 1.5rem;">${goal.id == null ? "Tambah" : "Edit"} Progress
                     </h2>
                     <form action="${pageContext.request.contextPath}/FinGoalServlet" method="post">
+                        <input type="hidden" name="id" value="${goal.id}">
                         <div class="form-group">
-                            <label>ID Progress</label>
-                            <input type="text" name="id" value="${goal.id}" required placeholder="Contoh: G001">
-                        </div>
-                        <div class="form-group">
-                            <label>Target ID</label>
-                            <input type="text" name="targetId" value="${goal.targetId}" required
-                                placeholder="Contoh: TGT001">
+                            <label>Target Tabungan</label>
+                            <select name="targetId" required>
+                                <option value="">-- Pilih Target --</option>
+                                <c:forEach var="t" items="${targets}">
+                                    <option value="${t.id}" ${goal.targetId==t.id ? 'selected' : '' }>${t.nama} (Target:
+                                        <fmt:formatNumber value="${t.jumlahTarget}" pattern="#,###" />)
+                                    </option>
+                                </c:forEach>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Jumlah Progress (Rp)</label>
-                            <input type="text" data-type="currency" name="progress" value="<c:if test=" ${goal.progress>
-                            0}">
-                            <fmt:formatNumber value="${goal.progress}" pattern="#,##0" />
-                            </c:if>"
-                            required>
+                            <c:set var="formattedProgress" value="" />
+                            <c:if test="${goal.progress > 0}">
+                                <c:set var="formattedProgress">
+                                    <fmt:formatNumber value="${goal.progress}" pattern="#,##0" />
+                                </c:set>
+                            </c:if>
+                            <input type="text" data-type="currency" name="progress" value="${formattedProgress}"
+                                required>
                         </div>
                         <div class="form-group">
                             <label>Status</label>

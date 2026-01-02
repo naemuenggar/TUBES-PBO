@@ -25,7 +25,7 @@
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                         <h2>Financial Goals Progress</h2>
-                        <a href="model/FinGoal-form.jsp" class="btn btn-primary">+ Update Progress</a>
+                        <!-- Auto-managed by Target Tabungan -->
                     </div>
 
                     <div class="card">
@@ -33,8 +33,8 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Target ID</th>
+                                        <th>User</th>
+                                        <th>Nama Target</th>
                                         <th>Progress Saat Ini</th>
                                         <th>Status</th>
                                         <th>Aksi</th>
@@ -43,8 +43,11 @@
                                 <tbody>
                                     <c:forEach var="f" items="${fingoals}">
                                         <tr>
-                                            <td>${f.id}</td>
-                                            <td>${f.targetId}</td>
+                                            <td>
+                                                <strong>${f.userName}</strong><br>
+                                                <small style="color: #64748b;">${f.userId}</small>
+                                            </td>
+                                            <td>${f.targetName != null ? f.targetName : f.targetId}</td>
                                             <td>Rp
                                                 <fmt:formatNumber value="${f.progress}" pattern="#,###" />
                                             </td>
@@ -55,9 +58,6 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <a href="FinGoalServlet?action=edit&id=${f.id}"
-                                                    class="btn btn-sm btn-primary"
-                                                    style="background-color: var(--primary);">Edit</a>
                                                 <a href="FinGoalServlet?action=delete&id=${f.id}"
                                                     class="btn btn-sm btn-danger"
                                                     onclick="return confirm('Yakin hapus?');">Hapus</a>

@@ -398,3 +398,19 @@ textarea:focus {
     background: #fee2e2;
     color: #991b1b;
 }
+
+/* Report Styles */
+.report-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 1rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+    .report-value {
+        font-size: 1.5rem;
+    }
+}

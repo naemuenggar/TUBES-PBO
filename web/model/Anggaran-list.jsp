@@ -26,7 +26,7 @@
                         <div
                             style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                             <h2>Daftar Anggaran</h2>
-                            <a href="model/Anggaran-form.jsp" class="btn btn-primary">+ Tambah Anggaran</a>
+                            <a href="AnggaranServlet?action=form" class="btn btn-primary">+ Tambah Anggaran</a>
                         </div>
 
                         <div class="card">

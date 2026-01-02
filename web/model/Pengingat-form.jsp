@@ -24,19 +24,25 @@
                     <h2 style="margin-top: 0; margin-bottom: 1.5rem;">${pengingat.id == null ? "Tambah" : "Edit"}
                         Pengingat</h2>
                     <form action="${pageContext.request.contextPath}/PengingatServlet" method="post">
-                        <div class="form-group">
-                            <label>ID Pengingat</label>
-                            <input type="text" name="id" value="${pengingat.id}" required placeholder="Contoh: REM001">
-                        </div>
+                        <input type="hidden" name="id" value="${pengingat.id}">
                         <div class="form-group">
                             <label>User</label>
-                            <select name="userId" required>
-                                <option value="">-- Pilih User --</option>
-                                <c:forEach var="u" items="${users}">
-                                    <option value="${u.id}" ${pengingat.userId==u.id ? 'selected' : '' }>${u.nama}
-                                        (${u.email})</option>
-                                </c:forEach>
-                            </select>
+                            <c:choose>
+                                <c:when test="${sessionScope.user.role == 'admin'}">
+                                    <select name="userId" required>
+                                        <option value="">-- Pilih User --</option>
+                                        <c:forEach var="u" items="${users}">
+                                            <option value="${u.id}" ${pengingat.userId==u.id ? 'selected' : '' }>
+                                                ${u.nama} (${u.email})</option>
+                                        </c:forEach>
+                                    </select>
+                                </c:when>
+                                <c:otherwise>
+                                    <input type="text" value="${sessionScope.user.nama}" readonly
+                                        style="background-color: #f1f5f9; cursor: not-allowed;">
+                                    <input type="hidden" name="userId" value="${sessionScope.user.id}">
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                         <div class="form-group">
                             <label>Pesan</label>
