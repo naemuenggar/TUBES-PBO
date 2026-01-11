@@ -1,0 +1,36 @@
+Checkout main 
+Your branch is up to date with 'origin/main'.
+Switched to branch 'main'
+Merging nelson 
+Updating 9763a7c..653165c
+Fast-forward
+ .../{moneymate_full.sql => moneymate_final.sql}    | 121 ++++++-------
+ src/java/controller/AnggaranServlet.java           | 120 +++++++++++--
+ src/java/controller/FinGoalServlet.java            | 140 ++++++++++++---
+ src/java/controller/LaporanServlet.java            |  45 +++--
+ src/java/controller/PengingatServlet.java          | 113 +++++++++---
+ src/java/controller/TagihanServlet.java            |  77 ++++++--
+ src/java/controller/TargetTabunganServlet.java     | 200 +++++++++++++++++----
+ src/java/controller/TransaksiServlet.java          | 115 ++++++++----
+ src/java/model/FinGoal.java                        |  23 +++
+ web/css/style.css                                  |  16 ++
+ web/index.jsp                                      |  18 +-
+ web/model/Anggaran-form.jsp                        | 124 +++++++------
+ web/model/Anggaran-list.jsp                        |   2 +-
+ web/model/FinGoal-form.jsp                         |  30 ++--
+ web/model/FinGoal-list.jsp                         |  16 +-
+ web/model/Laporan-view.jsp                         |  26 ++-
+ web/model/Pengingat-form.jsp                       |  28 +--
+ web/model/Tagihan-form.jsp                         |  36 ++--
+ web/model/Target-form.jsp                          |  23 ++-
+ web/model/Transaksi-form.jsp                       |  36 ++--
+ web/profile.jsp                                    |   2 +
+ 21 files changed, 956 insertions(+), 355 deletions(-)
+ rename database/{moneymate_full.sql => moneymate_final.sql} (81%)
+Pushing main 
+To https://github.com/if-tel-u/proyek-akhir-kelompok-7-pbo
+   9763a7c..653165c  main -> main
+Checkout back to nelson 
+Your branch is up to date with 'origin/nelson'.
+Switched to branch 'nelson'
+Done 

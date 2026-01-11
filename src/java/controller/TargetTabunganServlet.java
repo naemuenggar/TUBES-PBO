@@ -119,9 +119,24 @@ public class TargetTabunganServlet extends HttpServlet {
 
         String action = req.getParameter("action");
         
-        if ("processTabung".equals(action)) {
-            processTabung(req, res);
+        if ("addFunds".equals(action) || "withdrawFunds".equals(action)) {
+            handleFundTransfer(req, res, currentUser, action);
             return;
+        }
+
+        // Legacy support if needed, or remove "processTabung" if fully replaced.
+        // For now, let's redirect processTabung to new handler if possible, or just keep it for safety until frontend is fully switched.
+        if ("processTabung".equals(action)) {
+            // Map legacy params to new handler
+            // But legacy used "jumlahSetor" vs "amount".
+            // Let's just keep processTabung for now and add new Handler.
+            // Actually, plan said to Convert existing action.
+            // Let's implement handleFundTransfer purely.
+             handleFundTransfer(req, res, currentUser, "addFunds"); // Mapping legacy to addFunds might need param adjustments?
+             // Legacy has `targetId` vs `id`.
+             // Let's keep it clean: New frontend uses id/amount. Legacy uses targetId/jumlahSetor.
+             // I will replace processTabung logic with new generic one.
+             return; 
         }
 
         String id = req.getParameter("id");
@@ -134,15 +149,18 @@ public class TargetTabunganServlet extends HttpServlet {
             }
         }
 
+        // ... RBAC Logic ...
+        // ...
+        // (Keeping existing code for Create/Update Target)
+        
         // RBAC Logic for UserId
         String userIdToUse;
         if ("admin".equals(currentUser.getRole())) {
             userIdToUse = req.getParameter("userId");
             if (userIdToUse == null || userIdToUse.isEmpty()) {
-                userIdToUse = currentUser.getId(); // Fallback or Error
+                userIdToUse = currentUser.getId();
             }
         } else {
-            // Regular user: Force their own ID
             userIdToUse = currentUser.getId();
         }
 
@@ -155,15 +173,12 @@ public class TargetTabunganServlet extends HttpServlet {
         try {
             TargetTabungan existing = getById(t.getId());
             if (existing != null) {
-                // UPDATE
-                // RBAC Check: Regular user can only edit their own
                 if (!"admin".equals(currentUser.getRole()) && !existing.getUserId().equals(currentUser.getId())) {
                     res.sendError(HttpServletResponse.SC_FORBIDDEN, "Anda tidak memiliki akses untuk mengedit target ini.");
                     return;
                 }
                 update(t);
             } else {
-                // INSERT
                 insert(t);
             }
             res.sendRedirect("TargetTabunganServlet");
@@ -172,94 +187,158 @@ public class TargetTabunganServlet extends HttpServlet {
         }
     }
 
-    private void processTabung(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String targetId = req.getParameter("targetId");
-        String userId = req.getParameter("userId");
-        double jumlahSetor = Double.parseDouble(req.getParameter("jumlahSetor"));
+    private void handleFundTransfer(HttpServletRequest req, HttpServletResponse res, User currentUser, String action) throws ServletException, IOException {
+        String id = req.getParameter("id");
+        // Handle potential different param names if supporting legacy, but simplified here:
+        String amountParam = req.getParameter("amount");
+        if (amountParam == null) amountParam = req.getParameter("jumlahSetor"); // Legacy fallback
+        if (id == null) id = req.getParameter("targetId"); // Legacy fallback
+
+        double amount = Double.parseDouble(amountParam);
         String catatan = req.getParameter("catatan"); // Optional note
 
         try (Connection conn = JDBC.getConnection()) {
-            // 1. Get Target Info for Description
-            TargetTabungan target = getById(targetId);
-            String targetName = (target != null) ? target.getNama() : "Unknown Target";
-            
-            // 2. Ensure 'Tabungan' Category Exists (Idempotent)
-            String catId = "cat_tabungan";
-            String checkCatSql = "SELECT id FROM kategori WHERE id = ?";
-            try (PreparedStatement checkCatStmt = conn.prepareStatement(checkCatSql)) {
-                checkCatStmt.setString(1, catId);
-                try (ResultSet rs = checkCatStmt.executeQuery()) {
-                    if (!rs.next()) {
-                        String insertCatSql = "INSERT INTO kategori (id, nama, tipe) VALUES (?, ?, ?)";
-                        try (PreparedStatement insertCatStmt = conn.prepareStatement(insertCatSql)) {
-                            insertCatStmt.setString(1, catId);
-                            insertCatStmt.setString(2, "Tabungan");
-                            insertCatStmt.setString(3, "pengeluaran");
-                            insertCatStmt.executeUpdate();
-                        }
-                    }
-                }
+             TargetTabungan target = getById(id);
+             if (target == null) {
+                res.sendError(HttpServletResponse.SC_NOT_FOUND, "Target tidak ditemukan.");
+                return;
+             }
+             
+             // Verify ownership
+            if (!"admin".equals(currentUser.getRole()) && !target.getUserId().equals(currentUser.getId())) {
+                res.sendError(HttpServletResponse.SC_FORBIDDEN, "Akses ditolak.");
+                return;
             }
 
-            // 3. Insert Transaction (Pengeluaran)
+            boolean isAdd = "addFunds".equals(action) || "processTabung".equals(action);
+            
+            // Transaction Type Logic:
+            // Add Funds to Savings -> Money leaves Pocket (Expense) -> Progress Increases
+            // Withdraw Funds from Savings -> Money returns to Pocket (Income) -> Progress Decreases
+            String transType = isAdd ? "pengeluaran" : "pemasukan";
+            String catName = "Tabungan";
+            
+            // Ensure Category Exists
+            String catId = getOrCreateCategory(conn, catName, transType);
+
+            // Insert Transaction
             String transId = IdGenerator.getNextId(conn, "transaksi");
-            String insertTransSql = "INSERT INTO transaksi (id, user_id, jumlah, deskripsi, tanggal, kategori_id, jenis) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement transStmt = conn.prepareStatement(insertTransSql)) {
-                transStmt.setString(1, transId);
-                transStmt.setString(2, userId);
-                transStmt.setDouble(3, jumlahSetor); // Expense positive value
-                transStmt.setString(4, "Menabung: " + targetName + (catatan != null && !catatan.isEmpty() ? " (" + catatan + ")" : ""));
-                transStmt.setDate(5, new java.sql.Date(System.currentTimeMillis()));
-                transStmt.setString(6, catId);
-                transStmt.setString(7, "pengeluaran");
-                transStmt.executeUpdate();
-            }
+            String desc = (isAdd ? "Menabung: " : "Tarik Tabungan: ") + target.getNama() + (catatan != null ? " (" + catatan + ")" : "");
+            
+            insertTransaction(conn, transId, target.getUserId(), amount, desc, catId, transType);
 
-            // 4. Update FinGoal with Status Check
-            String checkSql = "SELECT id, progress FROM fingoal WHERE target_id = ?";
-            String fingoalId = null;
-            double currentProgress = 0;
-            
-            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
-                checkStmt.setString(1, targetId);
-                try (ResultSet rs = checkStmt.executeQuery()) {
-                    if (rs.next()) {
-                        fingoalId = rs.getString("id");
-                        currentProgress = rs.getDouble("progress");
-                    }
-                }
-            }
+            // Update FinGoal Progress
+            updateFinGoalProgress(conn, target.getId(), amount, isAdd, target.getJumlahTarget());
 
-            double newProgress = currentProgress + jumlahSetor;
-            String newStatus = (newProgress >= target.getJumlahTarget()) ? "Tercapai" : "Belum Tercapai";
-            
-            if (fingoalId != null) {
-                // Update existing
-                String updateSql = "UPDATE fingoal SET progress = ?, status = ? WHERE id = ?";
-                try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-                    updateStmt.setDouble(1, newProgress);
-                    updateStmt.setString(2, newStatus);
-                    updateStmt.setString(3, fingoalId);
-                    updateStmt.executeUpdate();
-                }
-            } else {
-                // Insert new
-                String newId = IdGenerator.getNextId(conn, "fingoal");
-                String insertSql = "INSERT INTO fingoal (id, target_id, progress, status) VALUES (?, ?, ?, ?)";
-                try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
-                    insertStmt.setString(1, newId);
-                    insertStmt.setString(2, targetId);
-                    insertStmt.setDouble(3, newProgress);
-                    insertStmt.setString(4, newStatus);
-                    insertStmt.executeUpdate();
-                }
-            }
-            
             res.sendRedirect("TargetTabunganServlet");
-            
-        } catch (SQLException e) {
+
+        } catch (Exception e) {
             throw new ServletException(e);
         }
+    }
+    
+    private String getOrCreateCategory(Connection conn, String name, String type) throws SQLException {
+        // Simple check/create logic
+        String sql = "SELECT id FROM kategori WHERE nama = ? AND tipe = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            stmt.setString(2, type);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getString("id");
+            }
+        }
+        
+        // Create if not exists
+        String newId = "cat_" + name.toLowerCase().replace(" ", "_") + "_" + type.substring(0,3);
+        // Ensure unique ID if conflict (simplified)
+        // Ideally use IdGenerator or UUID. Let's use IdGenerator logic or static assuming limited categories.
+        // For safety, let's query max ID or just use random/hash.
+        // Re-using SetupDB IDs logic: k1...k13.
+        // For dynamic, let's assume we can insert.
+        // But wait, user might have deleted it.
+        // Let's try to match existing logic.
+        
+        // BETTER: Search only by Type first? No, we want distinct "Tabungan" category usually.
+        // Use fixed ID for Tabungan if we can.
+        // Let's stick to safe insert.
+        newId = IdGenerator.getNextId(conn, "kategori"); // Assuming numeric IDs supported or string 'k'+num
+        // Actually IdGenerator returns numeric string. Kategori uses 'k[num]'.
+        // Let's just try to find ANY category of that type if specific one fails?
+        // No, 'Tabungan' is specific.
+        
+        String insertSql = "INSERT INTO kategori (id, nama, tipe) VALUES (?, ?, ?)";
+        try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
+            // Fix ID generation to match schema 'k'+number if needed or just string
+             // The schema uses varchar. IdGenerator.getNextId returns "integer string".
+             // Let's prepend 'k' to be safe or just use it.
+             // Actually IdGenerator.getNextId gets MAX(id). if IDs are k1, k2.. CAST(id as UNSIGNED) might fail if it's mixed.
+             // Schema check: setupDB uses 'k1'.
+             // IdGenerator uses CAST(id AS UNSIGNED). 'k1' fails cast -> 0.
+             // So getNextId might return '1'.
+             // Let's just generate a Random ID to be safe and lazy.
+             newId = "k_gen_" + System.currentTimeMillis(); 
+             
+            stmt.setString(1, newId);
+            stmt.setString(2, name);
+            stmt.setString(3, type);
+            stmt.executeUpdate();
+        }
+        return newId;
+    }
+
+    private void insertTransaction(Connection conn, String id, String userId, double amount, String desc, String catId, String type) throws SQLException {
+        String sql = "INSERT INTO transaksi (id, user_id, jumlah, deskripsi, tanggal, kategori_id, jenis) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            stmt.setString(2, userId);
+            stmt.setDouble(3, amount);
+            stmt.setString(4, desc);
+            stmt.setDate(5, new java.sql.Date(System.currentTimeMillis()));
+            stmt.setString(6, catId);
+            stmt.setString(7, type);
+            stmt.executeUpdate();
+        }
+    }
+
+    private void updateFinGoalProgress(Connection conn, String targetId, double amount, boolean isAdd, double targetAmount) throws SQLException {
+         String checkSql = "SELECT id, progress FROM fingoal WHERE target_id = ?";
+         String fingoalId = null;
+         double current = 0;
+         
+         try (PreparedStatement stmt = conn.prepareStatement(checkSql)) {
+             stmt.setString(1, targetId);
+             try (ResultSet rs = stmt.executeQuery()) {
+                 if (rs.next()) {
+                     fingoalId = rs.getString("id");
+                     current = rs.getDouble("progress");
+                 }
+             }
+         }
+         
+         double newProgress = isAdd ? (current + amount) : (current - amount);
+         if (newProgress < 0) newProgress = 0; // Prevent negative
+         
+         String status = (newProgress >= targetAmount) ? "Tercapai" : "Belum Tercapai";
+         
+         if (fingoalId != null) {
+             String sql = "UPDATE fingoal SET progress = ?, status = ? WHERE id = ?";
+             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                 stmt.setDouble(1, newProgress);
+                 stmt.setString(2, status);
+                 stmt.setString(3, fingoalId);
+                 stmt.executeUpdate();
+             }
+         } else {
+             // Should verify auto-created, but if missing:
+             String newId = IdGenerator.getNextId(conn, "fingoal");
+             String sql = "INSERT INTO fingoal (id, target_id, progress, status) VALUES (?, ?, ?, ?)";
+             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                 stmt.setString(1, newId);
+                 stmt.setString(2, targetId);
+                 stmt.setDouble(3, newProgress);
+                 stmt.setString(4, status);
+             }
+         }
     }
 
     private void insert(TargetTabungan t) throws SQLException {
