@@ -9,7 +9,6 @@ on:
 
 jobs:
   sonarcloud:
-    name: SonarCloud Analysis
     runs-on: ubuntu-latest
 
     steps:
@@ -21,3 +20,7 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=naemuenggar_TUBES-PBO
+            -Dsonar.organization=naemuenggar
