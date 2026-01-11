@@ -1,41 +1,23 @@
-name: SonarQube
+name: SonarCloud
+
 on:
   push:
     branches:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
-  build:
-    name: Build and analyze
+  sonarcloud:
+    name: SonarCloud Analysis
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'zulu' # Alternative distribution options are available.
-      - name: Build with Ant
-        run: |
-          mkdir -p lib
-          wget -P lib/ https://repo1.maven.org/maven2/javax/servlet/javax.servlet-api/3.1.0/javax.servlet-api-3.1.0.jar
-          wget -P lib/ https://repo1.maven.org/maven2/javax/servlet/jsp/javax.servlet.jsp-api/2.3.1/javax.servlet.jsp-api-2.3.1.jar
-          wget -P lib/ https://repo1.maven.org/maven2/javax/servlet/jstl/1.2/jstl-1.2.jar
-          ant -noinput -buildfile build.xml \
-            -Dj2ee.server.home=. \
-            -Dj2ee.platform.classpath=lib/javax.servlet-api-3.1.0.jar:lib/javax.servlet.jsp-api-2.3.1.jar:lib/jstl-1.2.jar \
-            -Dlibs.jstl.classpath=lib/jstl-1.2.jar
-      - name: SonarQube Scan
-        uses: SonarSource/sonarcloud-github-action@master
+          fetch-depth: 0
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=naemuenggar_TUBES-PBO
-            -Dsonar.organization=naemuenggar
-            -Dsonar.sources=src/java,web
-            -Dsonar.java.binaries=build/web/WEB-INF/classes
