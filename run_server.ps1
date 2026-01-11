@@ -18,10 +18,13 @@ Write-Host "Compiling Java sources..." -ForegroundColor Cyan
 $javaFiles = Get-ChildItem -Path $SRC_DIR -Filter "*.java" -Recurse | Select-Object -ExpandProperty FullName
 
 # Compile all files at once
+# Compile all files at once
 $compileCommand = "javac -cp `"$LIBS`" -d `"$OUT_DIR`" " + (($javaFiles | ForEach-Object { "`"$_`"" }) -join " ")
-# Skipping compilation to use existing classes
-# Invoke-Expression $compileCommand
-# if ($LASTEXITCODE -ne 0) { ... }
+Invoke-Expression $compileCommand
+if ($LASTEXITCODE -ne 0) { 
+    Write-Host "Compilation FAILED!" -ForegroundColor Red
+    exit 1
+}
 
 Write-Host "Compilation successful!" -ForegroundColor Green
 
