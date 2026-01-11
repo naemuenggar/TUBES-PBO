@@ -24,6 +24,7 @@ jobs:
           
       - name: Build with Ant
         run: |
+          rm src/java/ServerLauncher.java
           mkdir -p lib
           wget -P lib/ https://repo1.maven.org/maven2/javax/servlet/javax.servlet-api/3.1.0/javax.servlet-api-3.1.0.jar
           wget -P lib/ https://repo1.maven.org/maven2/javax/servlet/jsp/javax.servlet.jsp-api/2.3.1/javax.servlet.jsp-api-2.3.1.jar
