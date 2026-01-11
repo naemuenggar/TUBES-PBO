@@ -44,3 +44,4 @@ jobs:
             -Dsonar.organization=naemuenggar
             -Dsonar.java.binaries=build/web/WEB-INF/classes
             -Dsonar.sources=src/java,web
+            -Dsonar.coverage.exclusions=**
