@@ -2,8 +2,12 @@ import util.JDBC;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FixSchema {
+    private static final Logger LOGGER = Logger.getLogger(FixSchema.class.getName());
+
     public static void main(String[] args) {
         System.out.println("Starting Database Schema Fix...");
         try (Connection conn = JDBC.getConnection(); Statement stmt = conn.createStatement()) {
@@ -31,7 +35,7 @@ public class FixSchema {
             System.out.println("SUCCESS: Database schema updated successfully!");
         } catch (SQLException e) {
             System.err.println("ERROR: Failed to update schema.");
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to update schema", e);
         }
     }
 }
