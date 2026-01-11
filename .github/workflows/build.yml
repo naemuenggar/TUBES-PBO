@@ -24,12 +24,10 @@ jobs:
           wget -P lib/ https://repo1.maven.org/maven2/javax/servlet/javax.servlet-api/3.1.0/javax.servlet-api-3.1.0.jar
           wget -P lib/ https://repo1.maven.org/maven2/javax/servlet/jsp/javax.servlet.jsp-api/2.3.1/javax.servlet.jsp-api-2.3.1.jar
           wget -P lib/ https://repo1.maven.org/maven2/javax/servlet/jstl/1.2/jstl-1.2.jar
-          wget -P lib/ https://repo1.maven.org/maven2/org/netbeans/modules/org-netbeans-modules-java-j2seproject/RELEASE170/org-netbeans-modules-java-j2seproject-RELEASE170.jar
           ant -noinput -buildfile build.xml \
             -Dj2ee.server.home=. \
             -Dj2ee.platform.classpath=lib/javax.servlet-api-3.1.0.jar:lib/javax.servlet.jsp-api-2.3.1.jar:lib/jstl-1.2.jar \
-            -Dlibs.jstl.classpath=lib/jstl-1.2.jar \
-            -Dlibs.CopyLibs.classpath=lib/org-netbeans-modules-java-j2seproject-RELEASE170.jar
+            -Dlibs.jstl.classpath=lib/jstl-1.2.jar
       - name: SonarQube Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:

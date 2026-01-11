@@ -2,4 +2,15 @@
 <project name="MoneyMate" default="default" basedir=".">
     <description>Builds, tests, and runs the project MoneyMate.</description>
     <import file="nbproject/build-impl.xml"/>
+
+    <!-- Overrides to bypass NetBeans CopyLibs dependency for CI builds -->
+    <target name="-init-taskdefs">
+        <!-- do nothing -->
+    </target>
+    <target name="library-inclusion-in-archive">
+        <!-- do nothing -->
+    </target>
+    <target name="library-inclusion-in-manifest">
+        <!-- do nothing -->
+    </target>
 </project>
