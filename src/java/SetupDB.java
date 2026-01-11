@@ -2,6 +2,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -17,16 +18,16 @@ public class SetupDB {
     private static final Logger LOGGER = Logger.getLogger(SetupDB.class.getName());
 
     public static void main(String[] args) {
-        System.out.println("Initializing Database Setup...");
+        LOGGER.log(Level.INFO, "Initializing Database Setup...");
 
         try {
             // 1. Connect without DB to create it
             try (Connection conn = DriverManager.getConnection(URL_NO_DB, USER, PASS);
                     Statement stmt = conn.createStatement()) {
 
-                System.out.println("Connected to MySQL. Creating database if not exists...");
+                LOGGER.log(Level.INFO, "Connected to MySQL. Creating database if not exists...");
                 stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS MoneyMate");
-                System.out.println("Database 'MoneyMate' ensured.");
+                LOGGER.log(Level.INFO, "Database 'MoneyMate' ensured.");
             }
 
             // 2. Connect to the new DB and run the script
@@ -34,47 +35,49 @@ public class SetupDB {
             try (Connection conn = DriverManager.getConnection(urlWithDB, USER, PASS);
                     Statement stmt = conn.createStatement()) {
 
-                System.out.println("Connected to 'MoneyMate'. Executing schema script...");
+                LOGGER.log(Level.INFO, "Connected to 'MoneyMate'. Executing schema script...");
 
                 File sqlFile = new File("database/MoneyMate.sql");
-                BufferedReader reader = new BufferedReader(new FileReader(sqlFile));
-                String line;
-                StringBuilder sql = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(new FileReader(sqlFile))) {
+                    String line;
+                    StringBuilder sql = new StringBuilder();
 
-                while ((line = reader.readLine()) != null) {
-                    // Primitive SQL parser: split by semicolon if at end of line
-                    if (line.trim().startsWith("--") || line.trim().isEmpty()) {
-                        continue;
-                    }
-                    sql.append(line).append(" ");
-                    if (line.trim().endsWith(";")) {
-                        // Execute chunk
-                        try {
-                            stmt.execute(sql.toString());
-                            System.out.print(".");
-                        } catch (Exception e) {
-                            System.out.println("\nWarning executing: " + sql.toString());
-                            LOGGER.log(Level.WARNING, e.getMessage(), e);
+                    while ((line = reader.readLine()) != null) {
+                        // Primitive SQL parser: split by semicolon if at end of line
+                        if (line.trim().startsWith("--") || line.trim().isEmpty()) {
+                            continue;
                         }
-                        sql = new StringBuilder();
+                        sql.append(line).append(" ");
+                        if (line.trim().endsWith(";")) {
+                            // Execute chunk
+                            try {
+                                stmt.execute(sql.toString());
+                                // System.out.print("."); // Removed Code Smell
+                            } catch (SQLException e) {
+                                LOGGER.log(Level.WARNING, "Warning executing SQL: " + sql.toString(), e);
+                            }
+                            sql = new StringBuilder();
+                        }
                     }
                 }
-                System.out.println("\nDatabase schema imported successfully!");
+                LOGGER.log(Level.INFO, "Database schema imported successfully!");
 
                 // 3. Seed Data
                 seedData(conn);
             }
 
-        } catch (Exception e) {
-            System.err.println("\nERROR: Could not setup database.");
-            System.err.println("Make sure MySQL is running (XAMPP?) and password is empty for 'root'.");
-            LOGGER.log(Level.SEVERE, "Database setup failed", e);
+        } catch (SQLException e) { // Changed from generic Exception
+            LOGGER.log(Level.SEVERE,
+                    "Database setup failed due to SQL error. Ensure MySQL is running and credentials are correct.", e);
+            System.exit(1);
+        } catch (IOException e) { // Added specific catch for file operations
+            LOGGER.log(Level.SEVERE, "Database setup failed due to file I/O error (e.g., SQL script not found).", e);
             System.exit(1);
         }
     }
 
     private static void seedData(Connection conn) {
-        System.out.println("Seeding initial data...");
+        LOGGER.log(Level.INFO, "Seeding initial data..."); // Changed from System.out.println
 
         String insertUser = "INSERT IGNORE INTO user (id, nama, email, password, role) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement testPstmt = conn.prepareStatement(insertUser)) {
@@ -102,9 +105,8 @@ public class SetupDB {
                 safeExecKategori(katPstmt, "k13", "Asuransi", "pengeluaran");
             }
 
-            System.out.println("Data seeding completed!");
+            LOGGER.log(Level.INFO, "Data seeding completed!");
         } catch (Exception e) {
-            System.err.println("Error seeding data: " + e.getMessage());
             LOGGER.log(Level.SEVERE, "Error seeding data", e);
         }
     }
