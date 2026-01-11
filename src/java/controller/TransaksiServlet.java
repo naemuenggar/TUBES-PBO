@@ -3,7 +3,7 @@ package controller;
 
 import model.Transaksi;
 import model.User;
-import model.Kategori;
+
 import util.JDBC;
 import util.ParseUtils; // Added import
 import java.sql.Date;
@@ -14,6 +14,7 @@ import java.sql.*;
 import java.util.*;
 // import java.util.UUID; // Removed since using IdGenerator
 import util.IdGenerator;
+import util.DataHelper;
 
 public class TransaksiServlet extends HttpServlet {
 
@@ -33,34 +34,34 @@ public class TransaksiServlet extends HttpServlet {
                 Transaksi transaksi = getTransaksiById(id);
                 // RBAC Check
                 if (!"admin".equals(currentUser.getRole()) && !transaksi.getUserId().equals(currentUser.getId())) {
-                     res.sendError(HttpServletResponse.SC_FORBIDDEN, "Akses ditolak.");
-                     return;
+                    res.sendError(HttpServletResponse.SC_FORBIDDEN, "Akses ditolak.");
+                    return;
                 }
                 req.setAttribute("transaksi", transaksi);
-                req.setAttribute("kategoris", getAllKategori());
-                req.setAttribute("users", getAllUsers());
+                req.setAttribute("kategoris", DataHelper.getAllKategori());
+                req.setAttribute("users", DataHelper.getAllUsers());
                 req.getRequestDispatcher("/model/Transaksi-form.jsp").forward(req, res);
             } else if ("form".equals(action)) {
-                req.setAttribute("kategoris", getAllKategori());
-                req.setAttribute("users", getAllUsers());
+                req.setAttribute("kategoris", DataHelper.getAllKategori());
+                req.setAttribute("users", DataHelper.getAllUsers());
                 req.getRequestDispatcher("/model/Transaksi-form.jsp").forward(req, res);
             } else if ("payBill".equals(action)) {
                 String nama = req.getParameter("nama");
                 Double jumlah = Double.parseDouble(req.getParameter("jumlah"));
                 String userId = req.getParameter("userId");
-                String tagihanId = req.getParameter("id"); 
+                String tagihanId = req.getParameter("id");
 
                 Transaksi t = new Transaksi();
                 t.setDeskripsi("Bayar Tagihan: " + nama);
                 t.setJumlah(jumlah);
                 t.setUserId(userId);
-                t.setTanggal(new java.util.Date()); 
-                t.setJenis("pengeluaran"); 
+                t.setTanggal(new java.util.Date());
+                t.setJenis("pengeluaran");
 
                 req.setAttribute("transaksi", t);
-                req.setAttribute("users", getAllUsers());
-                req.setAttribute("kategoris", getAllKategori());
-                req.setAttribute("sourceTagihanId", tagihanId); 
+                req.setAttribute("users", DataHelper.getAllUsers());
+                req.setAttribute("kategoris", DataHelper.getAllKategori());
+                req.setAttribute("sourceTagihanId", tagihanId);
 
                 req.getRequestDispatcher("/model/Transaksi-form.jsp").forward(req, res);
             } else if ("delete".equals(action)) {
@@ -79,7 +80,7 @@ public class TransaksiServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
         User currentUser = (session != null) ? (User) session.getAttribute("user") : null;
-        
+
         if (currentUser == null) {
             res.sendRedirect("login.jsp");
             return;
@@ -94,7 +95,7 @@ public class TransaksiServlet extends HttpServlet {
                 id = IdGenerator.generateSimple(); // Fallback
             }
         }
-        
+
         // RBAC Logic
         String userIdToUse;
         if ("admin".equals(currentUser.getRole())) {
@@ -120,7 +121,8 @@ public class TransaksiServlet extends HttpServlet {
             if (existing != null) {
                 // UPDATE RBAC Check
                 if (!"admin".equals(currentUser.getRole()) && !existing.getUserId().equals(currentUser.getId())) {
-                    res.sendError(HttpServletResponse.SC_FORBIDDEN, "Anda tidak memiliki akses untuk mengedit transaksi ini.");
+                    res.sendError(HttpServletResponse.SC_FORBIDDEN,
+                            "Anda tidak memiliki akses untuk mengedit transaksi ini.");
                     return;
                 }
                 updateTransaksi(t);
@@ -209,20 +211,20 @@ public class TransaksiServlet extends HttpServlet {
         boolean isAdmin = "admin".equals(user.getRole());
 
         if (isAdmin) {
-             // JOINT QUERY to get category name
-             sql = "SELECT t.*, k.nama AS kategori_nama " +
-                     "FROM transaksi t " +
-                     "LEFT JOIN kategori k ON t.kategori_id = k.id";
+            // JOINT QUERY to get category name
+            sql = "SELECT t.*, k.nama AS kategori_nama " +
+                    "FROM transaksi t " +
+                    "LEFT JOIN kategori k ON t.kategori_id = k.id";
         } else {
-             sql = "SELECT t.*, k.nama AS kategori_nama " +
-                     "FROM transaksi t " +
-                     "LEFT JOIN kategori k ON t.kategori_id = k.id " +
-                     "WHERE t.user_id = ?";
+            sql = "SELECT t.*, k.nama AS kategori_nama " +
+                    "FROM transaksi t " +
+                    "LEFT JOIN kategori k ON t.kategori_id = k.id " +
+                    "WHERE t.user_id = ?";
         }
 
         try (Connection conn = JDBC.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             if (!isAdmin) {
                 stmt.setString(1, user.getId());
             }
@@ -246,30 +248,5 @@ public class TransaksiServlet extends HttpServlet {
     }
 
     // Helpers for Dropdowns
-    private List<User> getAllUsers() throws SQLException {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM user";
-        try (Connection conn = JDBC.getConnection();
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(new User(rs.getString("id"), rs.getString("nama"), rs.getString("email"),
-                        rs.getString("password")));
-            }
-        }
-        return list;
-    }
 
-    private List<Kategori> getAllKategori() throws SQLException {
-        List<Kategori> list = new ArrayList<>();
-        String sql = "SELECT * FROM kategori";
-        try (Connection conn = JDBC.getConnection();
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(new Kategori(rs.getString("id"), rs.getString("nama")));
-            }
-        }
-        return list;
-    }
 }

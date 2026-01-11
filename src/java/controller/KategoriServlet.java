@@ -42,8 +42,6 @@ public class KategoriServlet extends HttpServlet {
         String nama = req.getParameter("nama");
         // String tipe = req.getParameter("tipe"); // Removed
 
-        System.out.println("DEBUG KATEGORI: " + id + ", " + nama);
-
         if (id == null || id.trim().isEmpty()) {
             try (Connection conn = JDBC.getConnection()) {
                 id = IdGenerator.getNextId(conn, "kategori");
@@ -74,8 +72,8 @@ public class KategoriServlet extends HttpServlet {
             stmt.setString(1, k.getId());
             stmt.setString(2, k.getNama());
             // stmt.setString(3, k.getTipe()); // Removed
-            int rows = stmt.executeUpdate();
-            System.out.println("DEBUG INSERT ROWS: " + rows);
+            stmt.executeUpdate();
+
         }
     }
 

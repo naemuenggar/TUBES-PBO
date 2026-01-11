@@ -3,7 +3,7 @@ package controller;
 
 import model.Tagihan;
 import util.JDBC;
-import model.Kategori; // Added import
+
 import util.ParseUtils; // Added import
 import java.sql.Date;
 import javax.servlet.*;
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 import util.IdGenerator;
+import util.DataHelper;
 
 import model.User;
 
@@ -31,16 +32,16 @@ public class TagihanServlet extends HttpServlet {
                 String id = req.getParameter("id");
                 Tagihan tagihan = getById(id);
                 req.setAttribute("tagihan", tagihan);
-                req.setAttribute("users", getAllUsers());
+                req.setAttribute("users", DataHelper.getAllUsers());
                 req.getRequestDispatcher("/model/Tagihan-form.jsp").forward(req, res);
             } else if ("payBill".equals(action)) {
                 String id = req.getParameter("id");
                 Tagihan tagihan = getById(id);
                 req.setAttribute("tagihan", tagihan);
-                req.setAttribute("kategoris", getAllKategori()); // Fetch categories for dropdown
+                req.setAttribute("kategoris", DataHelper.getAllKategori()); // Fetch categories for dropdown
                 req.getRequestDispatcher("/model/Bayar-tagihan.jsp").forward(req, res);
             } else if ("form".equals(action)) {
-                req.setAttribute("users", getAllUsers());
+                req.setAttribute("users", DataHelper.getAllUsers());
                 req.getRequestDispatcher("/model/Tagihan-form.jsp").forward(req, res);
             } else if ("delete".equals(action)) {
                 delete(req.getParameter("id"));
@@ -58,7 +59,7 @@ public class TagihanServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
         User currentUser = (session != null) ? (User) session.getAttribute("user") : null;
-        
+
         if (currentUser == null) {
             res.sendRedirect("login.jsp");
             return;
@@ -69,7 +70,7 @@ public class TagihanServlet extends HttpServlet {
             processPayBill(req, res);
             return;
         }
-        
+
         String id = req.getParameter("id");
         if (id == null || id.trim().isEmpty()) {
             try (Connection conn = JDBC.getConnection()) {
@@ -79,7 +80,7 @@ public class TagihanServlet extends HttpServlet {
                 id = IdGenerator.generateSimple(); // Fallback
             }
         }
-        
+
         // RBAC Logic
         String userIdToUse;
         if ("admin".equals(currentUser.getRole())) {
@@ -103,7 +104,8 @@ public class TagihanServlet extends HttpServlet {
             if (existing != null) {
                 // UPDATE RBAC Check
                 if (!"admin".equals(currentUser.getRole()) && !existing.getUserId().equals(currentUser.getId())) {
-                    res.sendError(HttpServletResponse.SC_FORBIDDEN, "Anda tidak memiliki akses untuk mengedit tagihan ini.");
+                    res.sendError(HttpServletResponse.SC_FORBIDDEN,
+                            "Anda tidak memiliki akses untuk mengedit tagihan ini.");
                     return;
                 }
                 update(t);
@@ -178,8 +180,8 @@ public class TagihanServlet extends HttpServlet {
         }
 
         try (Connection conn = JDBC.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             if (!isAdmin) {
                 stmt.setString(1, user.getId());
             }
@@ -198,24 +200,6 @@ public class TagihanServlet extends HttpServlet {
         return list;
     }
 
-
-
-    private List<User> getAllUsers() throws SQLException {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM user";
-        try (Connection conn = JDBC.getConnection();
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(new User(
-                        rs.getString("id"),
-                        rs.getString("nama"),
-                        rs.getString("email"),
-                        rs.getString("password")));
-            }
-        }
-        return list;
-    }
     private void processPayBill(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String tagihanId = req.getParameter("tagihanId");
         String userId = req.getParameter("userId");
@@ -269,16 +253,4 @@ public class TagihanServlet extends HttpServlet {
         res.sendRedirect("TagihanServlet");
     }
 
-    private List<Kategori> getAllKategori() throws SQLException {
-        List<Kategori> list = new ArrayList<>();
-        String sql = "SELECT * FROM kategori";
-        try (Connection conn = JDBC.getConnection();
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(new Kategori(rs.getString("id"), rs.getString("nama")));
-            }
-        }
-        return list;
-    }
 }

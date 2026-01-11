@@ -9,10 +9,11 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
+
 import java.util.List;
 // import java.util.UUID; // Removed
 import util.IdGenerator;
+import util.DataHelper;
 
 public class UserServlet extends HttpServlet {
 
@@ -28,7 +29,7 @@ public class UserServlet extends HttpServlet {
                 deleteUser(req.getParameter("id"));
                 res.sendRedirect("UserServlet");
             } else {
-                List<User> list = getAllUsers();
+                List<User> list = DataHelper.getAllUsers();
                 req.setAttribute("users", list);
                 req.getRequestDispatcher("/model/user-list.jsp").forward(req, res);
             }
@@ -127,21 +128,4 @@ public class UserServlet extends HttpServlet {
         return null;
     }
 
-    private List<User> getAllUsers() throws SQLException {
-        List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM user";
-        try (Connection conn = JDBC.getConnection();
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(new User(
-                        rs.getString("id"),
-                        rs.getString("nama"),
-                        rs.getString("email"),
-                        rs.getString("password"),
-                        rs.getString("role")));
-            }
-        }
-        return list;
-    }
 }
